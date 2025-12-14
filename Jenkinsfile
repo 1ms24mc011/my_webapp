@@ -3,14 +3,14 @@ pipeline {
 
   environment {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-    IMAGE_NAME = "aravind80555/my_webapp"
+    IMAGE_NAME = "aravind2003/my_webapp"
   }
 
   stages {
     stage('Checkout') {
       steps {
         git(
-          url: 'https://github.com/Aravind162003/my_webapp',
+          url: 'https://github.com/1ms24mc011/my_webapp',
           branch: 'master',
           credentialsId: 'dockerhub'
         )
