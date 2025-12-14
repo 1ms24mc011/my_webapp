@@ -1,51 +1,42 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-    IMAGE_NAME = "aravind2003/my_webapp"
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        git(
-          url: 'https://github.com/1ms24mc011/my_webapp',
-          branch: 'master',
-          credentialsId: 'dockerhub'
-        )
-      }
+    environment {
+        IMAGE_NAME = "aravind2003/my_webapp"
     }
 
-    stage('Build Docker Image') {
-      steps {
-        script {
-          def dockerImage = docker.build("${IMAGE_NAME}:latest")
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'master',
+                    url: 'https://github.com/1ms24mc011/my_webapp'
+            }
         }
-      }
-    }
 
-    stage('Push to Docker Hub') {
-      steps {
-        script {
-          docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-            dockerImage.push()
-          }
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:latest ."
+            }
         }
-      }
-    }
-  }
 
-  post {
-    always {
-      echo "Cleaning up workspace..."
-      deleteDir()
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+                        sh "docker push ${IMAGE_NAME}:latest"
+                    }
+                }
+            }
+        }
     }
-    success {
-      echo 'Pipeline succeeded!'
+
+    post {
+        success {
+            echo "✅ Image pushed successfully: ${IMAGE_NAME}:latest"
+        }
+        failure {
+            echo "❌ Pipeline failed"
+        }
     }
-    failure {
-      echo 'Pipeline failed!'
-    }
-  }
 }
